@@ -91,3 +91,8 @@ footer li a {
 footer li a:hover {
     color: #3c345a;
 }
+
+.gambarIndex {
+    width: 10rem;
+    height: auto;
+}
