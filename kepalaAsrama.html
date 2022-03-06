@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Mahasiswa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link href="//db.onlinewebfonts.com/c/1dc8ecd8056a5ea7aa7de1db42b5b639?family=Gilroy" rel="stylesheet" type="text/css"/>
+    <link href="MidProject.css" rel="stylesheet">
+    <link rel="icon" href="logounai.png">
+</head>
+<body>
+    <nav class="navbar navbar-expand-md d-flex justify-content-center">
+        <div>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="permohonanKeluar.html">Permohonan</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="kepalaAsrama.html">Kepala Asrama</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="statusPermohonan.html">Status Permohonan</a>
+              </li>
+          </ul>
+        </div>
+      </nav>
+
+
+    <div id="app">
+        <div class="container">
+            <div class="py-5 text-center">
+                <h2>Izin Keluar Mahasiswa Inside UNAI</h2>
+            </div>
+
+            <div class="col-md-12">
+                <h4 class="mb-3">Data Kepala Asrama</h4>
+                <button v-on:click="resetForm()">Create New Data</button>
+                <table class="table">
+                    <tr>
+                        <th>No.</th>
+                        <th>Username</th>
+                        <th>Nama</th>
+                        <th>Nomor Telepon</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                    <tr v-for="kepala in kepala_asrama">
+                        <td>{{ kepala.id }}</td>
+                        <td>{{ kepala.username }}</td>
+                        <td>{{ kepala.nama }}</td>
+                        <td>{{ kepala.noTelp }}</td>
+                        <td><button class="btn-warning" v-on:click="getEdit(kepala)">Edit</button></td>
+                        <td><button class="btn-danger" v-on:click="getDelete(kepala)">Delete</button></td>
+                    </tr>
+                </table>
+
+                <div v-if="message" class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+
+                <h4 class="mb-3 margin">Informasi Kepala Asrama</h4>
+                
+                
+                    <div class="mb-3">
+                        <label for="username">Username</label>
+                        <input v-model="username" type="text" class="form-control" id="username" value="" required>
+                        <div class="invalid-feedback">
+                            Username masih kosong!
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nama">Nama</label>
+                        <input v-model="nama" type="text" class="form-control" id="nama" value="" required>
+                        <div class="invalid-feedback">
+                            Nama masih kosong!
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="noTelp">Nomor Telepon</label>
+                        <input v-model="noTelp" type="text" class="form-control" id="noTelp" value="" required>
+                        <div class="invalid-feedback">
+                            Nomor Telepon masih kosong!
+                        </div>
+                    </div>
+
+                    <hr class="mb-4">
+                    <button v-if="!editMode && !deleteMode" v-on:click="createKepala" type="submit">Submit Data</button>
+                    <button v-if="editMode" v-on:click="updateKepala" class="btn-warning" type="submit">Update Data</button>
+                    <button v-if="deleteMode" v-on:click="deleteKepala" class="btn-danger" type="submit">Delete Data</button>
+                
+            </div>
+            <footer class="my-5 pt-5 text-muted text-center text-small">
+                <p class="mb-1">&copy; 2022 ANNA MONICA</p>
+                <ul class="list-inline">
+                  <li class="list-inline-item"><a href="https://unai.edu/">UNAI</a></li>
+                  <li class="list-inline-item"><a href="https://fti.unai.edu/">FTI UNAI</a></li>
+                </ul>
+            </footer>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        var app = new Vue ({
+            el: '#app',
+            data: {
+                errors: [],
+                message: null,
+                kepala_asrama:[],
+                kepalaIdEdit: null,
+                kepalaIdDelete: null,
+                editMode: false,
+                deleteMode: false,
+                username: '',
+                nama: '',
+                noTelp: '',
+            },
+            mounted: function() {
+                this.getKepala();
+            },
+            methods: {
+                getKepala() {
+                    axios.get('https://621a249f81d4074e85ba7ca7.mockapi.io/kepala_asrama')
+                    .then(response => {
+                        this.kepala_asrama = response.data;
+                        console.log(response);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+                },
+                createKepala: function(){
+                    axios.post('https://621a249f81d4074e85ba7ca7.mockapi.io/kepala_asrama', {
+                        username: this.username,
+                        nama: this.nama,
+                        noTelp: this.noTelp,
+                    })
+                    .then(response => {
+                        this.getKepala();
+                        this.message = "Data berhasil disimpan";
+                        console.log(response);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+                },
+                resetForm: function () {
+                    this.message = null;
+                    this.editMode = false;
+                    this.deleteMode = false;
+                    this.kepalaIdEdit =  null,
+                    this.username = null;
+                    this.nama = null;
+                    this.noTelp = null;
+                },
+                getEdit: function (kepala) {
+                    this.message = null;
+                    this.editMode = true;
+                    this.deleteMode = false;
+                    this.kepalaIdEdit =  kepala.id;
+                    this.username = kepala.username;
+                    this.nama = kepala.nama;
+                    this.noTelp = kepala.noTelp;
+                },
+                getDelete: function (kepala) {
+                    this.message = null;
+                    this.editMode = false;
+                    this.deleteMode = true;
+                    this.kepalaIdDelete =  kepala.id;
+                    this.username = kepala.username;
+                    this.nama = kepala.nama;
+                    this.noTelp = kepala.noTelp;
+                },
+                updateKepala: function () {
+                    axios.put(`https://621a249f81d4074e85ba7ca7.mockapi.io/kepala_asrama/${this.kepalaIdEdit}`, {
+                        username: this.username,
+                        nama: this.nama,
+                        noTelp: this.noTelp,
+                    })
+                    .then(res => {
+                        this.message = "Your data has been updated";
+                        this.getKepala();
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    })
+                },
+                deleteKepala: function () {
+                    axios.delete(`https://621a249f81d4074e85ba7ca7.mockapi.io/kepala_asrama/${this.kepalaIdDelete}`)
+                        .then(res => {
+                            this.message = "Your data has been deleted";
+                            this.getKepala();
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                }
+            }
+        })
+
+    </script>
+
+</body>
+</html>

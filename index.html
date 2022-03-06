@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Mahasiswa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link href="//db.onlinewebfonts.com/c/1dc8ecd8056a5ea7aa7de1db42b5b639?family=Gilroy" rel="stylesheet" type="text/css"/>
+    <link href="MidProject.css" rel="stylesheet">
+    <link rel="icon" href="logounai.png">
+</head>
+<body>
+    <nav class="navbar navbar-expand-md d-flex justify-content-center">
+        <div>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="permohonanKeluar.html">Permohonan</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="kepalaAsrama.html">Kepala Asrama</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="statusPermohonan.html">Status Permohonan</a>
+              </li>
+          </ul>
+        </div>
+      </nav>
+
+    <div id="app">
+        <div class="container">
+            <div class="py-5 text-center">
+                <!-- judul -->
+                <h2>Izin Keluar Mahasiswa Inside UNAI</h2>
+            </div>
+
+            <div class="col-md-12">
+                <h4 class="mb-3">Data Mahasiswa</h4>
+                <button v-on:click="resetForm()">Create New Data</button>
+                <table class="table">
+                    <tr>
+                        <th>No.</th>
+                        <th>NIM</th>
+                        <th>Nama</th>
+                        <th>Nomor Telepon</th>
+                        <th>Jurusan</th>
+                        <th>Kamar</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                    <tr v-for="mhs in mahasiswa">
+                        <td>{{ mhs.id }}</td>
+                        <td>{{ mhs.nim }}</td>
+                        <td>{{ mhs.name }}</td>
+                        <td>{{ mhs.no_telp }}</td>
+                        <td>{{ mhs.jurusan }}</td>
+                        <td>{{ mhs.kamar }}</td>
+                        <td><button class="btn-warning" v-on:click="getEdit(mhs)">Edit</button></td>
+                        <td><button class="btn-danger" v-on:click="getDelete(mhs)">Delete</button></td>
+                    </tr>
+                </table>
+
+                <div v-if="message" class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+
+                <h4 class="mb-3 margin">Informasi Mahasiswa</h4>
+                
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nim">NIM</label>
+                            <input v-model="nim" type="text" class="form-control" id="nim" value="" required>
+                            <div class="invalid-feedback">
+                                NIM masih kosong!
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="name">Nama</label>
+                            <input v-model="name" type="text" class="form-control" id="name" value="" required>
+                            <div class="invalid-feedback">
+                                Nama masih kosong!
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="no_telp">Nomor Telepon</label>
+                        <input v-model="no_telp" type="text" class="form-control" id="no_telp" value="" required>
+                        <div class="invalid-feedback">
+                            Nomor Telepon masih kosong!
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="jurusan">Jurusan</label>
+                        <select v-model="jurusan" class="form-control" id="jurusan" name="jurusan">
+                            <option value="Akuntansi">Akuntansi</option>
+                            <option value="Manajemen">Manajemen</option>
+                            <option value="Theologia">Theologia</option>
+                            <option value="Keperawatan S1">Keperawatan S1</option>
+                            <option value="Keperawatan D3">Keperawatan D3</option>
+                            <option value="Bahasa Inggris">Bahasa Inggris</option>
+                            <option value="Matematika">Matematika</option>
+                            <option value="Biologi">Biologi</option>
+                            <option value="Farmasi">Farmasi</option>
+                            <option value="Teknik Informatika">Teknik Informatika</option>
+                            <option value="Sistem Informasi">Sistem Informasi</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Jurusan masih kosong!
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="kamar">Kamar</label>
+                        <input v-model="kamar" type="text" class="form-control" id="kamar" value="" required>
+                        <div class="invalid-feedback">
+                            Kamar masih kosong!
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password">Password</label>
+                        <input v-model="password" type="password" class="form-control" id="password" value="" required>
+                        <div class="invalid-feedback">
+                            Kamar masih kosong!
+                        </div>
+                    </div>
+
+                    <hr class="mb-4">
+                    <button v-if="!editMode && !deleteMode" v-on:click="createMhs" type="submit">Submit Data</button>
+                    <button v-if="editMode" v-on:click="updateMhs" class="btn-warning" type="submit">Update Data</button>
+                    <button v-if="deleteMode" v-on:click="deleteMhs" class="btn-danger" type="submit">Delete Data</button>
+                
+            </div>
+            <footer class="my-5 pt-5 text-muted text-center text-small">
+                <p class="mb-1">&copy; 2022 ANNA MONICA</p>
+                <ul class="list-inline">
+                  <li class="list-inline-item"><a href="https://unai.edu/">UNAI</a></li>
+                  <li class="list-inline-item"><a href="https://fti.unai.edu/">FTI UNAI</a></li>
+                </ul>
+            </footer>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        var app = new Vue ({
+            el: '#app',
+            data: {
+                errors: [],
+                message: null,
+                mahasiswa:[],
+                mhsIdEdit: null,
+                mhsIdDelete: null,
+                editMode: false,
+                deleteMode: false,
+                nim: '',
+                name: '',
+                no_telp: '',
+                jurusan: '',
+                kamar: '',
+                password: '',
+            },
+            mounted: function() {
+                this.getMhs();
+            },
+            methods: {
+                getMhs() {
+                    axios.get('https://621a249f81d4074e85ba7ca7.mockapi.io/mahasiswa')
+                    .then(response => {
+                        this.mahasiswa = response.data;
+                        console.log(response);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+                },
+                createMhs: function(){
+                    axios.post('https://621a249f81d4074e85ba7ca7.mockapi.io/mahasiswa', {
+                        nim: this.nim,
+                        name: this.name,
+                        no_telp: this.no_telp,
+                        jurusan: this.jurusan,
+                        kamar: this.kamar,
+                        password: this.password,
+                    })
+                    .then(response => {
+                        this.getMhs();
+                        this.message = "Data berhasil disimpan";
+                        console.log(response);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+                },
+                resetForm: function () {
+                    this.message = null;
+                    this.editMode = false;
+                    this.deleteMode = false;
+                    this.mhsIdEdit =  null,
+                    this.nim = null;
+                    this.name = null;
+                    this.no_telp = null;
+                    this.jurusan = null;
+                    this.kamar = null;
+                    this.password = null;
+                },
+                getEdit: function (mhs) {
+                    this.message = null;
+                    this.editMode = true;
+                    this.deleteMode = false;
+                    this.mhsIdEdit =  mhs.id;
+                    this.nim = mhs.nim;
+                    this.name = mhs.name;
+                    this.no_telp = mhs.no_telp;
+                    this.jurusan = mhs.jurusan;
+                    this.kamar = mhs.kamar;
+                    this.password = mhs.password;
+                },
+                getDelete: function (mhs) {
+                    this.message = null;
+                    this.editMode = false;
+                    this.deleteMode = true;
+                    this.mhsIdDelete =  mhs.id;
+                    this.nim = mhs.nim;
+                    this.name = mhs.name;
+                    this.no_telp = mhs.no_telp;
+                    this.jurusan = mhs.jurusan;
+                    this.kamar = mhs.kamar;
+                    this.password = mhs.password;
+                },
+                updateMhs: function () {
+                    axios.put(`https://621a249f81d4074e85ba7ca7.mockapi.io/mahasiswa/${this.mhsIdEdit}`, {
+                        nim: this.nim,
+                        name: this.name,
+                        no_telp: this.no_telp,
+                        jurusan: this.jurusan,
+                        kamar: this.kamar,
+                        password: this.password,
+                    })
+                    .then(res => {
+                        this.message = "Your data has been updated";
+                        this.getMhs();
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    })
+                },
+                deleteMhs: function () {
+                    axios.delete(`https://621a249f81d4074e85ba7ca7.mockapi.io/mahasiswa/${this.mhsIdDelete}`)
+                        .then(res => {
+                            this.message = "Your data has been deleted";
+                            this.getMhs();
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                }
+            }
+        })
+
+    </script>
+
+</body>
+</html>
